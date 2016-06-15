@@ -2,7 +2,8 @@
 # A sample Gemfile
 source "https://rubygems.org"
 
-# gem "rails"
+ruby '2.2.4'
+
 gem "sinatra"
 gem "rspec-sinatra"
 gem 'rspec' 
