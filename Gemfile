@@ -2,7 +2,7 @@
 # A sample Gemfile
 source "https://rubygems.org"
 
-ruby '2.2.4'
+ruby '2.3.0'
 
 gem "sinatra"
 gem "rspec-sinatra"
@@ -12,3 +12,4 @@ gem 'data_mapper'
 gem 'dm-postgres-adapter'
 gem 'database_cleaner'
 gem 'dm-transactions'
+gem 'rake'
