@@ -21,6 +21,8 @@ feature 'Adding new users' do
     fill_in('email', with: '')
     click_button('Register')
     expect(User.first).to be_nil
+    expect(current_path).to eq('/')
+    expect(page).to have_content('Email must not be blank')
   end
 
   scenario "User-provided email must be properly formatted" do
@@ -43,6 +45,17 @@ feature 'Adding new users' do
     expect(User.first).to be_nil
   end
 
+  scenario 'User can\'t register twice in a row' do
+    register_and_sign_in
+    expect{register_and_sign_in}.to_not change{User.all.count}
+  end
+
+  scenario 'User can\'t sign in with previously registered email' do
+    User.create(name: 'Cameron', password: 'addhth', password_test: 'addhth', email: 'cameron@gmail.com')
+    expect{register_and_sign_in}.to_not change{User.all.count}  
+    expect(page).to have_content('Email is already taken')
+  end
+
   scenario "Different passwords display a flash error message" do
     visit('/')
     fill_in('name', with: 'Cameron')
@@ -51,6 +64,6 @@ feature 'Adding new users' do
     fill_in('email', with: 'cameron@gmail.com')
     click_button('Register')
     expect(current_path).to eq '/'
-    expect(page).to have_content 'Password and confirmation do not match'
+    expect(page).to have_content 'Password does not match the confirmation'
   end
 end
