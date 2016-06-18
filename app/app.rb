@@ -10,12 +10,13 @@ class BookmarkManager < Sinatra::Base
   register Sinatra::Flash
 
   get '/' do
-    erb(:index)
+    erb(:index) # index.erb displays user's bookmarks - if signed-in
+                # else user is redirected to sessions/new
   end
 
   post '/' do
     @user = User.create(params)
-    # name: params[:name], password: params[:password], password_test: params[:password_test], email: params[:email]
+    # name: params[:name], password: params[:password], password_confirmation: params[:password_confirmation], email: params[:email]
     if @user.id
       session[:user_id] = @user.id
       @user.save
@@ -27,6 +28,21 @@ class BookmarkManager < Sinatra::Base
     end
   end
 
+  get '/sessions/new' do
+    erb :'sessions/new'
+  end
+
+  post '/sessions' do
+    user = User.authenticate(params[:email], params[:password])
+    if user
+      session[:user_id] = user.id
+      redirect to('/links')
+    else
+      flash.now[:errors] = ['The email or password is incorrect']
+      erb :'sessions/new'
+    end
+  end
+  
   get '/links' do
   	@links = Link.all
   	erb(:'links/index')
@@ -51,6 +67,15 @@ class BookmarkManager < Sinatra::Base
     @name = params[:name]
     @links = tag ? tag.links : []
     erb :'links/index'
+  end
+
+  get '/links/signout'  do
+    erb :'links/signout'
+  end
+
+  post '/signout' do
+    @current_user = nil
+    redirect 'links/signout'
   end
 
   helpers do

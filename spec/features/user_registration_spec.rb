@@ -5,7 +5,8 @@ feature 'Adding new users' do
 
   scenario 'Displays welcome message for newly registered users' do
     register_and_sign_in
-    expect(page).to have_content('Welcome, Cameron')
+    expect(page).to have_content('Welcome, cameron@gmail.com Links') 
+
   end
 
   scenario 'Email address submitted is the same as the one recorded in the database' do
@@ -17,7 +18,7 @@ feature 'Adding new users' do
     visit('/')
     fill_in('name', with: 'Cameron')
     fill_in('password', with: 'password')
-    fill_in('password_test', with: 'password')
+    fill_in('password_confirmation', with: 'password')
     fill_in('email', with: '')
     click_button('Register')
     expect(User.first).to be_nil
@@ -29,7 +30,7 @@ feature 'Adding new users' do
     visit('/')
     fill_in('name', with: 'Cameron')
     fill_in('password', with: 'password')
-    fill_in('password_test', with: 'password')
+    fill_in('password_confirmation', with: 'password')
     fill_in('email', with: 'invalid@email')
     click_button('Register')
     expect(User.first).to be_nil
@@ -39,7 +40,7 @@ feature 'Adding new users' do
     visit('/')
     fill_in('name', with: 'Cameron')
     fill_in('password', with: 'password')
-    fill_in('password_test', with: 'not_the_same_password')
+    fill_in('password_confirmation', with: 'not_the_same_password')
     fill_in('email', with: 'cameron@gmail.com')
     click_button('Register')
     expect(User.first).to be_nil
@@ -51,7 +52,7 @@ feature 'Adding new users' do
   end
 
   scenario 'User can\'t sign in with previously registered email' do
-    User.create(name: 'Cameron', password: 'addhth', password_test: 'addhth', email: 'cameron@gmail.com')
+    User.create(name: 'Cameron', password: 'addhth', password_confirmation: 'addhth', email: 'cameron@gmail.com')
     expect{register_and_sign_in}.to_not change{User.all.count}  
     expect(page).to have_content('Email is already taken')
   end
@@ -60,10 +61,36 @@ feature 'Adding new users' do
     visit('/')
     fill_in('name', with: 'Cameron')
     fill_in('password', with: 'password')
-    fill_in('password_test', with: 'not_the_same_password')
+    fill_in('password_confirmation', with: 'not_the_same_password')
     fill_in('email', with: 'cameron@gmail.com')
     click_button('Register')
     expect(current_path).to eq '/'
     expect(page).to have_content 'Password does not match the confirmation'
   end
 end
+
+feature 'User sign in' do
+  
+  scenario 'with correct credentials' do
+    user = create_user    
+    sign_in(email: user.email,   password: user.password) 
+    #expect(current_path).to eq '/links'
+    expect(page).to have_content "Welcome, #{user.email}"
+  end
+
+end
+
+feature 'User signs out' do
+  
+  scenario 'user can sign out' do
+    user = create_user    
+    sign_in(email: user.email,   password: user.password)
+    click_button 'Sign out'
+  #  expect(current_path).to eq '/signout'
+    expect(page).to have_content "Goodbye"
+  end
+end
+  
+
+
+
